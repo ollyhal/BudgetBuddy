@@ -68,6 +68,7 @@ JFrame mainframe = new JFrame("Budget Buddy 0.2");
 
 JPanel jp1 = new JPanel();
 JPanel jp2 = new JPanel();
+JPanel jp3 = new JPanel();
 JPanel jpN = new JPanel();
 
 JPanel jpNW = new JPanel(new GridBagLayout());
@@ -76,8 +77,18 @@ JPanel jpSW = new JPanel(new BorderLayout());
 Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 //Forecast Pane
 JLabel MonthForecast = new JLabel("Monthly Forecast");
+JLabel MonthIncome = new JLabel("Income: ");
+JLabel MonthIncomeBalnce = new JLabel();
+JLabel MonthSpent = new JLabel("Spent: ");
+JLabel MonthBudget = new JLabel("Budget: ");
 JLabel WeekForecast = new JLabel("Weekly Forecast");
+JLabel WeekIncome = new JLabel("Income: ");
+JLabel WeekSpent = new JLabel("Spent: ");
+JLabel WeekBudget = new JLabel("Budget: ");
 JLabel YearForecast = new JLabel("Yearly Forecast");
+JLabel YearIncome = new JLabel("Income: ");
+JLabel YearSpent = new JLabel("Spent: ");
+JLabel YearBudget = new JLabel("Budget: ");
 JLabel CustomForecast = new JLabel("Custom Forecast");
 
 public static File f = new File("Transaction" + LoginGUI.username + ".csv");
@@ -272,7 +283,9 @@ public void createMainGUI() throws IOException {
 	n.insets = new Insets(10,10,10,10);
 	NameAccount.setText("Main Account");	
 	NameAccount.setOpaque(true);
-	
+	n.fill = GridBagConstraints.HORIZONTAL;
+	n.ipadx = 80;
+	n.gridwidth = 3;
 	n.gridx = 0;
     n.gridy = 0;
     n.anchor = GridBagConstraints.FIRST_LINE_START	;
@@ -325,6 +338,7 @@ public void createMainGUI() throws IOException {
 	//Panel  settings 
 	
 	Mainpane.addTab("Transactions", jp1);
+	Mainpane.addTab("Cash Flow", jp3);
 	Mainpane.addTab("Forecast", jp2);
 	//Forecast Pane
 	JPanel fpN = new JPanel(new BorderLayout());
@@ -338,27 +352,54 @@ public void createMainGUI() throws IOException {
 	NW.gridy = 0; 
 	fpNW.setBorder(BorderFactory.createLineBorder(Color.black));
 	fpNW.add(WeekForecast,NW);
-	
+    NW.anchor = GridBagConstraints.FIRST_LINE_START;
+    NW.gridy = 1;
+    fpNW.add(WeekIncome,NW);
+    NW.gridy = 2;
+    fpNW.add(WeekSpent,NW);
+     NW.gridy = 3;
+	fpNW.add(WeekBudget,NW);
+
 	GridBagConstraints NN = new GridBagConstraints();
 	NN.insets = new Insets(10,100,10,100);
 	NN.gridx = 0;
 	NN.gridy = 0;
 	fpNN.setBorder(BorderFactory.createLineBorder(Color.black));
 	fpNN.add(MonthForecast,NN);
-	
+        NN.anchor = GridBagConstraints.FIRST_LINE_START;
+        NN.gridy = 1;
+        fpNN.add(MonthIncome,NN);
+        NN.gridy = 2;
+        fpNN.add(MonthSpent,NN);
+        NN.gridy = 3;
+        fpNN.add(MonthBudget,NN);
+
 	GridBagConstraints NE = new GridBagConstraints();
 	NE.insets = new Insets(10,100,10,100);
 	NE.gridx = 0;
 	NE.gridy = 0;
 	fpNE.setBorder(BorderFactory.createLineBorder(Color.black));
 	fpNE.add(YearForecast,NE);
+        NE.anchor = GridBagConstraints.FIRST_LINE_START;
 	NE.gridy = 1;
-	fpNE.ad
+        fpNE.add(YearIncome,NE);
+        NE.gridy = 2;
+        fpNE.add(YearSpent,NE);
+        NE.gridy = 3;
+        fpNE.add(YearBudget,NE);
 	
 	fpN.add(fpNW,BorderLayout.WEST);
 	fpN.add(fpNN,BorderLayout.CENTER);
 	fpN.add(fpNE,BorderLayout.EAST);
 	jp2.add(fpN,BorderLayout.NORTH);
+	//Expenditure
+	JPanel EpN = new JPanel(new BorderLayout());
+	JPanel EpNW = new JPanel(new GridBagLayout());
+	JPanel EpNN = new JPanel(new GridBagLayout());
+	JPanel EpNE = new JPanel(new GridBagLayout());
+	
+	GridBagConstraints ENW = new GridBagConstraints();	
+	
 	//TabPane		
 	GridBagConstraints tb = new GridBagConstraints();
 	tb.anchor = GridBagConstraints.CENTER;

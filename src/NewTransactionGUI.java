@@ -55,12 +55,12 @@ public class NewTransactionGUI {
 	JLabel Type = new JLabel("Type: ");
 	JLabel Notes = new JLabel("Notes: ");
 	
-	JTextField PyeTxt = new JTextField(10);
-	JTextField AmtTxt = new JTextField(10);
+	JTextField PyeTxt = new JTextField(12);
+	JTextField AmtTxt = new JTextField(12);
 	
 	JComboBox TypeTxt = new JComboBox(TypeAry);
 	
-	JTextArea NoteFld = new JTextArea(10, 20);
+	JTextArea NoteFld = new JTextArea(10, 25);
 	
 	JButton okbtn = new JButton("OK");
 	JButton cnclbtn = new JButton("Cancel");
@@ -148,6 +148,7 @@ public void createNewTransactionGUI(){
 	GridBagConstraints c = new GridBagConstraints(); 
 	
 	c.insets = new Insets(10,10,10,10);
+	c.anchor = GridBagConstraints.FIRST_LINE_START;
 	c.gridx = 0;
 	c.gridy = 1; 
 	JPAT.add(Pye,c);
@@ -193,8 +194,10 @@ public void createNewTransactionGUI(){
 	c.gridx = 0;
 	c.gridy = 5;
 	JPAT.add(Notes,c);
-	c.gridx = 1;
+	c.gridx = 0;
 	c.gridy = 6; 
+	NoteFld.setBorder(BorderFactory.createLineBorder(Color.black));
+	c.gridwidth = 3;
 	JPAT.add(NoteFld,c);
 	c.gridx = 0;
 	c.gridy = 7;
@@ -207,7 +210,7 @@ public void createNewTransactionGUI(){
   	JFAT.setLocationRelativeTo(null);
 	JFAT.add(JPAT, BorderLayout.NORTH);		
 	JFAT.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	JFAT.setSize(400,600);
+	JFAT.setSize(400,500);
 	JFAT.setVisible(true);
 }
 
