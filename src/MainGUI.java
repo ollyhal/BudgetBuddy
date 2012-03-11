@@ -81,14 +81,23 @@ JLabel MonthIncome = new JLabel("Income: ");
 JLabel MonthIncomeBalnce = new JLabel();
 JLabel MonthSpent = new JLabel("Spent: ");
 JLabel MonthBudget = new JLabel("Budget: ");
+JLabel CMonthIncomeForecast = new JLabel();
+JLabel CMonthSpentForecast = new JLabel();
+JLabel CMonthBudgetForecast = new JLabel();
 JLabel WeekForecast = new JLabel("Weekly Forecast");
 JLabel WeekIncome = new JLabel("Income: ");
 JLabel WeekSpent = new JLabel("Spent: ");
 JLabel WeekBudget = new JLabel("Budget: ");
+JLabel CWeekIncomeForecast = new JLabel();
+JLabel CWeekSpentForecast = new JLabel();
+JLabel CWeekBudgetForecast = new JLabel();
 JLabel YearForecast = new JLabel("Yearly Forecast");
 JLabel YearIncome = new JLabel("Income: ");
 JLabel YearSpent = new JLabel("Spent: ");
 JLabel YearBudget = new JLabel("Budget: ");
+JLabel CYearIncomeForecast = new JLabel();
+JLabel CYearSpentForecast = new JLabel();
+JLabel CYearBudgetForecast = new JLabel();
 JLabel CustomForecast = new JLabel("Custom Forecast");
 
 public static File f = new File("Transaction" + LoginGUI.username + ".csv");
@@ -359,6 +368,9 @@ public void createMainGUI() throws IOException {
     fpNW.add(WeekSpent,NW);
      NW.gridy = 3;
 	fpNW.add(WeekBudget,NW);
+	NW.gridx = 1;
+	NW.gridy = 1;
+	fpNW.add
 
 	GridBagConstraints NN = new GridBagConstraints();
 	NN.insets = new Insets(10,100,10,100);
@@ -373,6 +385,7 @@ public void createMainGUI() throws IOException {
         fpNN.add(MonthSpent,NN);
         NN.gridy = 3;
         fpNN.add(MonthBudget,NN);
+        
 
 	GridBagConstraints NE = new GridBagConstraints();
 	NE.insets = new Insets(10,100,10,100);
@@ -392,7 +405,7 @@ public void createMainGUI() throws IOException {
 	fpN.add(fpNN,BorderLayout.CENTER);
 	fpN.add(fpNE,BorderLayout.EAST);
 	jp2.add(fpN,BorderLayout.NORTH);
-	//Expenditure
+	//Cash flow
 	JPanel EpN = new JPanel(new BorderLayout());
 	JPanel EpNW = new JPanel(new GridBagLayout());
 	JPanel EpNN = new JPanel(new GridBagLayout());
