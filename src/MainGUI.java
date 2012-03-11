@@ -16,6 +16,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
@@ -39,10 +45,11 @@ public class MainGUI {
 //Declarations 
 	
 Object[] columnNames = {"Date","Payee","Amount","Type","Balance"};
- 
+
 public static int lineNumber = 0;
+public static double WspForecast;
 int tokenNumber = 0;
-String[][] data = new String[lineNumber][5];
+public static String[][] data = new String[lineNumber][5];
 //GUI Declarations
 
 JLabel BLbl = new JLabel();
@@ -149,6 +156,7 @@ public double newbalance(){
 				System.out.println("Deposit");
 		}
 	}
+	
 	Amount.setText(Double.toString(balance));
 	return balance; 
 }
@@ -272,12 +280,63 @@ public void table() throws IOException{
 	            //get next token and store it in the array
 	            data[row][col] = st.nextToken();
 	            col++;
+	            
+
 	        }
+	        
 	        col = 0;
 	        row++;
 	        }
 	        			
 	} 
+	
+}
+public void WeeklyForecast(){
+	// Get calendar set to current date and time
+	Calendar c = GregorianCalendar.getInstance();
+	c.setFirstDayOfWeek(Calendar.MONDAY);
+	// Set the calendar to monday of the current week
+	int weekstart1 = Calendar.DAY_OF_WEEK;
+	int weekstart2 = Calendar.MONDAY;
+	c.set(weekstart1,weekstart2);
+	System.out.println(weekstart1 + " " + weekstart2);
+	// Print dates of the current week starting on Monday
+	DateFormat df = new SimpleDateFormat("dd MMM yyyy");
+	String Weekdate = df.format(c.getTime());	 
+	
+    System.out.println("Array list: " + lineNumber);   
+	for(int v = 0; v < lineNumber; v++){
+		
+		Weekdate = df.format(c.getTime());
+		System.out.println("V value: " + v);
+    	System.out.println("Date is " + data[v][0]);
+    	
+    	System.out.println(weekstart1 + " " + weekstart2);
+    	c.set(weekstart1, weekstart2);
+    	
+    	for (int i = 0; i < 7; i++) { 
+    	
+    	System.out.println("I value: " + i);
+    	Weekdate = df.format(c.getTime());    	
+    	c.add(Calendar.DATE, 1);	 
+    	System.out.println(Weekdate);
+    	if(Weekdate.equals(data[v][0])){
+    		System.out.println("Date that matches is " + data[v][0]);
+    		if(data[v][3].equals("Withdraw")){
+    			WspForecast = Double.parseDouble(data[v][4]) + WspForecast;
+    		}
+    		    	}
+    	
+    	}
+    	c.add(Calendar.DATE, -7);
+    }
+	System.out.println(WspForecast);
+}
+public void MonthlyForecast(){
+	
+}
+public void YearlyForecast(){
+	
 }
 public void createMainGUI() throws IOException { 
 	JPanel bottomside = new JPanel(new GridBagLayout());
@@ -334,6 +393,7 @@ public void createMainGUI() throws IOException {
 	table();
 	JTable Transaction = new JTable(data, columnNames);  
 	newbalance();
+
 	BLbl.setText("Balance: " + "£ " + Integer.toString((int) balance));
 
 	JScrollPane scrollPane = new JScrollPane(Transaction);
@@ -370,7 +430,13 @@ public void createMainGUI() throws IOException {
 	fpNW.add(WeekBudget,NW);
 	NW.gridx = 1;
 	NW.gridy = 1;
-	fpNW.add
+	WeeklyForecast();
+	CWeekSpentForecast.setText(Double.toString(WspForecast));
+	fpNW.add(CWeekIncomeForecast);	
+	NW.gridy = 2;
+	fpNW.add(CWeekSpentForecast);
+	NW.gridy = 3;
+	fpNW.add(CWeekBudgetForecast);
 
 	GridBagConstraints NN = new GridBagConstraints();
 	NN.insets = new Insets(10,100,10,100);
@@ -378,13 +444,14 @@ public void createMainGUI() throws IOException {
 	NN.gridy = 0;
 	fpNN.setBorder(BorderFactory.createLineBorder(Color.black));
 	fpNN.add(MonthForecast,NN);
-        NN.anchor = GridBagConstraints.FIRST_LINE_START;
-        NN.gridy = 1;
-        fpNN.add(MonthIncome,NN);
-        NN.gridy = 2;
-        fpNN.add(MonthSpent,NN);
-        NN.gridy = 3;
-        fpNN.add(MonthBudget,NN);
+    NN.anchor = GridBagConstraints.FIRST_LINE_START;
+    NN.gridy = 1;
+    fpNN.add(MonthIncome,NN);
+    NN.gridy = 2;
+    fpNN.add(MonthSpent,NN);
+    NN.gridy = 3;
+    fpNN.add(MonthBudget,NN);
+    
         
 
 	GridBagConstraints NE = new GridBagConstraints();
