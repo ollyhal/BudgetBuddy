@@ -51,6 +51,7 @@ public void nusermain(){
 	createNewUserGUI();
 	ACL();
 }
+
 public void createNewUserGUI(){
 	
 	GridBagConstraints c = new GridBagConstraints(); 
@@ -131,8 +132,23 @@ public void savefile(){
 		{
 		     e.printStackTrace();
 		} 
+	 try 
+	 {
+		 FileWriter writer = new FileWriter(MainGUI.SettingsFile,true);
+		 BufferedWriter out = new BufferedWriter(writer);
+		 
+		 out.append("Setting a Budget");
+		 out.append(',');	
+		 out.append(BalanceFld.getText());
+		 out.flush();
+		 out.close();
+	 }
+	 catch(IOException e)
+		{
+	     e.printStackTrace();
+	} 
 	    }
-	
+	 
 
 public void ACL() { 
 	
