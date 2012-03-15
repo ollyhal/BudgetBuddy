@@ -68,6 +68,7 @@ public class NewTransactionGUI {
 	JFrame JFAT = new JFrame("Add a New Transaction");
 	JPanel JPAT = new JPanel(new GridBagLayout());
 	public void NTGM() { 
+		
 		createNewTransactionGUI();
 		ACL();
 	}
@@ -83,6 +84,44 @@ public class NewTransactionGUI {
 		System.out.println("Current Amount: " + currentAmount);
 		System.out.println("New Amount: " + newAmount);
 		return balance;
+	}
+	public boolean PayeeEntered(){
+		boolean payeeentered = true;
+		if (PyeTxt.getText().isEmpty()){
+			payeeentered = false;
+		}
+		return payeeentered;
+	}
+	public  boolean datecheck() {
+        boolean dateafter = true;
+        Date value = (Date)model.getValue();  
+        Date today = new java.util.Date();
+        System.out.println("Today's Date: " + today);
+        System.out.println("Entered Date: " + value);
+        if(today.after(value)){
+        	dateafter = false;
+        	System.out.println("Today's date is after");
+        }
+        
+        return dateafter;
+    }
+	public boolean amountentered(){
+		boolean amountentered = true;
+		if(AmtTxt.getText().isEmpty() ){
+			amountentered = false;
+		}
+		try {
+		    int x = Integer.parseInt(AmtTxt.getText());
+		    double x1 = Double.parseDouble(AmtTxt.getText());
+		    System.out.println(x1);
+		}
+		catch(NumberFormatException nFE) {
+		    System.out.println("Not an Integer");
+		    amountentered = false;
+		}
+		
+		return amountentered;
+		
 	}
 	public void SFle() {
 		String generateCSVFile = "Transaction" + LoginGUI.username + ".csv";
@@ -126,10 +165,19 @@ public class NewTransactionGUI {
 			     e.printStackTrace();
 			} 
 		    }	
+public boolean failsafe(){
+	boolean failsafe = false;
+	if(datecheck() == true && amountentered() == true && PayeeEntered() == true){
+		failsafe = true;
+	}
 	
+	return failsafe;
+	
+}
 public void ACL() { 
 	okbtn.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent event) {          
+        public void actionPerformed(ActionEvent event) { 
+        	if(failsafe() == true){
         	SFle();
         	JFAT.setVisible(false);
         	MainGUI mg = new MainGUI();
@@ -140,9 +188,11 @@ public void ACL() {
 				e.printStackTrace();
 			}
             System.out.println("SAVED");           
-        }
-    });
+        }	else {
+		System.out.println("Something went wrong");
+	}}});
 }
+
 public void createNewTransactionGUI(){
 	//Grid Layout
 	GridBagConstraints c = new GridBagConstraints(); 
