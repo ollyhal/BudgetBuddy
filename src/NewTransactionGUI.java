@@ -93,17 +93,17 @@ public class NewTransactionGUI {
 		return payeeentered;
 	}
 	public  boolean datecheck() {
-        boolean dateafter = true;
+        boolean datebefore = true;
         Date value = (Date)model.getValue();  
         Date today = new java.util.Date();
         System.out.println("Today's Date: " + today);
         System.out.println("Entered Date: " + value);
-        if(today.after(value)){
-        	dateafter = false;
+        if(today.before(value)){
+        	datebefore = false;
         	System.out.println("Today's date is after");
         }
         
-        return dateafter;
+        return datebefore;
     }
 	public boolean amountentered(){
 		boolean amountentered = true;
