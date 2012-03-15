@@ -16,13 +16,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Date;
+
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -39,6 +44,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 
 public class MainGUI {
@@ -132,7 +139,7 @@ JLabel YearlyIncomeCashflow = new JLabel();
 JLabel YearlySpentCashflow = new JLabel();
 JLabel YearlyBudgetCashflow = new JLabel();
 
-
+JLabel CreateACustomCashFlow = new JLabel();
 JTextField CashFlowTextField = new JTextField();
 JButton CashFlowSearchButton = new JButton("Search");
 
@@ -195,12 +202,13 @@ public double getbudget() {
 		e.printStackTrace();
 	}
 	firstbudget = Double.parseDouble(settings[0][1]);
-	System.out.println(firstbudget);
+	System.out.println("First Budget: " + firstbudget);
 	return firstbudget; 
 	
 }
 public double newbudget(){
 	budget = budget + getbudget();
+        System.out.println("Budget: " + budget);
 	for(int i = 1; i < lineNumber; i++){
 
 		if(data[i][3].equals("Withdraw")){
@@ -419,63 +427,49 @@ System.out.println("Day of the Week: " +c.get(Calendar.DAY_OF_WEEK) );
 	System.out.println(WspBudgetCashFlow);
         
 }
-//public void MonthlyCashFlow(){
-	/*MspSpentCashFlow = 0;
+public void MonthlyCashFlow(){
+	MspSpentCashFlow = 0;
 	MspIncomeCashFlow = 0;
 	MspBudgetCashFlow = getbudget();
+	DateFormat df = new SimpleDateFormat("dd MMM yyyy");
 	// Get calendar set to current date and time
 	Calendar c = GregorianCalendar.getInstance();
-
-	// Set the calendar to monday of the current week
-	int monthstart1 = Calendar.DAY_OF_MONTH;
-	int monthstart2 = Calendar.MONDAY;
-	c.set(monthstart1,monthstart2);
-	System.out.println(monthstart + " " + weekstart2);
-	// Print dates of the current week starting on Monday
-	DateFormat df = new SimpleDateFormat("dd MMM yyyy");
-	String Weekdate = df.format(c.getTime());
-System.out.println("Day of the Week: " +c.get(Calendar.DAY_OF_WEEK) );
-    System.out.println("Array list: " + lineNumber);
+	String Monthdate = df.format(c.getTime());
+	int maximum = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+	int year = c.get(Calendar.YEAR);
+	int month = c.get(Calendar.MONTH);
+	int date = c.getActualMinimum(Calendar.DAY_OF_MONTH);
+	System.out.println(Monthdate);
+	System.out.println("Year , Month , Date" + year + month + date);
+	
 	for(int v = 0; v < lineNumber; v++){
-	Weekdate = df.format(c.getTime());
-	//System.out.println("V value: " + v);
-    	//System.out.println("Date is " + data[v][0]);
-
-    	//System.out.println(weekstart1 + " " + weekstart2);
-    	c.set(weekstart1, weekstart2);
-
-    	for (int i = 0; i < 7; i++) {
-
-    	System.out.println("I value: " + i);
-    	Weekdate = df.format(c.getTime());
+	c.set(year, month, 1);
+	
+	
+	
+    for(int i = 0; i < maximum;i++ ){
+    	Monthdate = df.format(c.getTime());
     	c.add(Calendar.DATE, 1);
-    	//System.out.println(Weekdate);
-    	if(Weekdate.equals(data[v][0])){
-    		//System.out.println("Date that matches is " + data[v][0]);
-    		if(data[v][3].equals("Withdraw")){
-    			System.out.println("Withdraw Before: " + WspSpentCashFlow);
-    			WspSpentCashFlow = Double.parseDouble(data[v][2]) + WspSpentCashFlow;
-    			System.out.println("Withdraw After: " + WspSpentCashFlow);
-    			
-    		}
-                if(data[v][3].equals("Deposit")){
-                    WspIncomeCashFlow = WspIncomeCashFlow + Double.parseDouble(data[v][2]);
-                    System.out.println("Income: " + WspIncomeCashFlow);
-                    
-                }
-
-    		    	}
-
-    	}
-    	c.add(Calendar.DATE, -7);
+    	System.out.println(Monthdate);
+    	if(Monthdate.equals(data[v][0])){ 
+    		
+    	if(data[v][3].equals("Withdraw")){
+			System.out.println("Withdraw Before: " + MspSpentCashFlow);
+			MspSpentCashFlow = Double.parseDouble(data[v][2]) + MspSpentCashFlow;
+			System.out.println("Withdraw After: " + MspSpentCashFlow);
+			
+		}
+            if(data[v][3].equals("Deposit")){
+            	MspIncomeCashFlow = MspIncomeCashFlow + Double.parseDouble(data[v][2]);
+                System.out.println("Income: " + MspIncomeCashFlow);
+                
+            }
     }
-	WspBudgetCashFlow = (((getbudget())/7) + (WspIncomeCashFlow - WspSpentCashFlow));
-	System.out.println(WspIncomeCashFlow);
-	System.out.println(WspSpentCashFlow);
-	System.out.println(WspBudgetCashFlow);
-        
+    }
 }
-}*/
+	MspBudgetCashFlow = (getbudget() + (MspIncomeCashFlow - MspSpentCashFlow));
+
+}
 public double WeeklyForecast(){
 	Calendar c = GregorianCalendar.getInstance();
 	int dayofweek = c.get(Calendar.DAY_OF_WEEK);
@@ -543,9 +537,9 @@ public void createMainGUI() throws IOException {
 	table();
 	JTable Transaction = new JTable(data, columnNames);
 	newbalance();
-
-	BLbl.setText("Balance: " + "£ " + Integer.toString((int) balance));
-	XLbl.setText("Budget: " + "£ " + newbudget());
+        Transaction.setAutoCreateRowSorter(true);
+	BLbl.setText("Balance: " + "ï¿½ " + Integer.toString((int) balance));
+	XLbl.setText("Budget: " + "ï¿½ " + newbudget());
 
 	JScrollPane scrollPane = new JScrollPane(Transaction);
 	scrollPane.setPreferredSize(new Dimension(tablewidth,810));
@@ -560,7 +554,9 @@ public void createMainGUI() throws IOException {
 	Mainpane.addTab("Transactions", jp1);
 	Mainpane.addTab("Cash Flow", jp3);
 	Mainpane.addTab("Forecast", jp2);
-	//Forecast Pane
+
+	//Forecast Panel
+	MonthlyCashFlow();
 	JPanel fpN = new JPanel(new BorderLayout(20,10));
 	JPanel fpNW = new JPanel(new GridBagLayout());
 	JPanel fpNN = new JPanel(new GridBagLayout());
@@ -570,18 +566,18 @@ public void createMainGUI() throws IOException {
 	NW.insets = new Insets(10,10,10,10);
 	NW.gridx = 0;
 	NW.gridy = 0;
-    fpNW.setBorder(BorderFactory.createLineBorder(Color.black));
+        fpNW.setBorder(BorderFactory.createLineBorder(Color.black));
 	fpNW.add(WeekForecast,NW);
-    NW.anchor = GridBagConstraints.FIRST_LINE_START;
-    NW.gridy = 1;
-    fpNW.add(WeekIncome,NW);
-    NW.gridy = 2;
-    fpNW.add(WeekSpent,NW);
-    NW.gridy = 3;
+        NW.anchor = GridBagConstraints.FIRST_LINE_START;
+        NW.gridy = 1;
+        fpNW.add(WeekIncome,NW);
+        NW.gridy = 2;
+        fpNW.add(WeekSpent,NW);
+        NW.gridy = 3;
 	fpNW.add(WeekBudget,NW);	
 	WeeklyCashFlow();
 	CWeekSpentForecast.setText(Double.toString(WspForecast));
-    NW.gridx = 1;
+        NW.gridx = 1;
 	NW.gridy = 1;
 	fpNW.add(CWeekIncomeForecast,NW);
 	NW.gridy = 2;
@@ -636,7 +632,11 @@ public void createMainGUI() throws IOException {
 	ENW.insets = new Insets(10,10,10,10);
 	ENW.gridx = 0;
 	ENW.gridy = 0;
+        ENW.gridwidth = 2;
+        ENW.anchor = GridBagConstraints.CENTER;
 	EpNW.add(WeeklyCashflow,ENW);
+    ENW.gridwidth = 1;
+    ENW.anchor = GridBagConstraints.FIRST_LINE_END;
 	ENW.gridy = 1;
 	EpNW.add(WeekIncome,ENW);
 	ENW.gridy = 2;
@@ -645,13 +645,15 @@ public void createMainGUI() throws IOException {
 	EpNW.add(WeekBudget,ENW);
 	ENW.gridx = 1;
 	ENW.gridy = 1;
-	WeeklyIncomeCashflow.setText(Double.toString(WspIncomeCashFlow));	
+    DecimalFormat Currency = new DecimalFormat("£ #0.00");
+    ENW.anchor = GridBagConstraints.FIRST_LINE_START;
+	WeeklyIncomeCashflow.setText(Currency.format(WspIncomeCashFlow));
 	EpNW.add(WeeklyIncomeCashflow,ENW);
 	ENW.gridy = 2;
-	WeeklySpentCashflow.setText(Double.toString(WspSpentCashFlow));	
+	WeeklySpentCashflow.setText(Currency.format(WspSpentCashFlow));
 	EpNW.add(WeeklySpentCashflow,ENW);
-	ENW.gridy = 3;
-	WeeklyBudgetCashflow.setText(Double.toString(WspBudgetCashFlow));	
+	ENW.gridy = 3;        
+	WeeklyBudgetCashflow.setText(Currency.format(WspBudgetCashFlow));
 	EpNW.add(WeeklyBudgetCashflow,ENW);
 	EpNW.setBorder(BorderFactory.createLineBorder(Color.black));	
 	EpN.add(EpNW,BorderLayout.WEST);	
@@ -661,13 +663,25 @@ public void createMainGUI() throws IOException {
 	ENN.insets = new Insets(10,10,10,10);
 	ENN.gridx = 0;
 	ENN.gridy = 0;
+	ENN.gridwidth = 2;
 	EpNN.add(MonthlyCashflow,ENN);
 	ENN.gridy = 1;
+	ENN.gridwidth = 1;
 	EpNN.add(MonthIncome,ENN);
 	ENN.gridy = 2;
 	EpNN.add(MonthSpent,ENN);
 	ENN.gridy = 3;
 	EpNN.add(MonthBudget,ENN);	
+	ENN.gridx = 1;
+	ENN.gridy = 1;
+	MonthlyIncomeCashflow.setText(Currency.format(MspIncomeCashFlow));
+	EpNN.add(MonthlyIncomeCashflow, ENN);
+	ENN.gridy = 2;
+	MonthlySpentCashflow.setText(Currency.format(MspSpentCashFlow));
+	EpNN.add(MonthlySpentCashflow,ENN);
+	ENN.gridy = 3;
+	MonthlyBudgetCashflow.setText(Currency.format(MspBudgetCashFlow));
+	EpNN.add(MonthlyBudgetCashflow,ENN);
 	EpNN.setBorder(BorderFactory.createLineBorder(Color.black));	
 	EpN.add(EpNN,BorderLayout.CENTER);
 	
@@ -715,5 +729,5 @@ public void createMainGUI() throws IOException {
 	mainframe.setVisible(true);
 	mainframe.setSize((int) screenwidth, (int) screenheight );
 }
-
 }
+
