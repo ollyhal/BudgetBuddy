@@ -1,0 +1,22 @@
+# Personal financial data must never be committed
+data/
+*.db
+*.sqlite
+*.sqlite3
+statements/
+*.xlsx
+*.ofx
+*.qif
+# Bank exports dropped into the repo by accident (test fixtures are allowed)
+/*.csv
+!tests/fixtures/*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+build/
+dist/
