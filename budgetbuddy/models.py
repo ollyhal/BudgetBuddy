@@ -77,14 +77,15 @@ class Transaction:
         """Identity used to spot the same transaction in overlapping exports.
 
         Running balance is left out on purpose: identical same day payments
-        are told apart by counting occurrences, not by balance.
+        are told apart by counting occurrences, not by balance. Reference is
+        left out too, because opening a CSV in Excel turns long references
+        into things like 4E+15, and the same payment must still match.
         """
         key = "|".join(
             [
                 self.posted_on.isoformat(),
                 str(self.amount_pence),
                 normalise_text(self.counterparty).casefold(),
-                normalise_text(self.reference).casefold(),
                 normalise_text(self.description).casefold(),
             ]
         )

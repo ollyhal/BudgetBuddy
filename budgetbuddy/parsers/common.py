@@ -25,7 +25,10 @@ def read_csv_rows(path: Path) -> list[list[str]]:
             continue
     else:  # pragma: no cover - cp1252 decodes almost anything
         raise ValueError(f"Cannot decode {path.name}")
-    return [row for row in csv.reader(io.StringIO(text))]
+    # Exports copied out of Excel come through tab separated
+    first_line = text.split("\n", 1)[0]
+    delimiter = "\t" if first_line.count("\t") > first_line.count(",") else ","
+    return [row for row in csv.reader(io.StringIO(text), delimiter=delimiter)]
 
 
 def map_columns(header: list[object], aliases: dict[str, tuple[str, ...]]) -> dict[str, int]:

@@ -7,6 +7,7 @@ Dates are day first (dd/mm/yyyy). Money out is negative.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from budgetbuddy.models import ParsedStatement, Transaction, normalise_text, parse_date, parse_pence
@@ -26,6 +27,9 @@ ALIASES: dict[str, tuple[str, ...]] = {
 }
 
 REQUIRED = ("date", "counterparty", "amount")
+
+# A long reference that Excel rewrote, e.g. 4E+15
+_EXCEL_MANGLED = re.compile(r"^\d(\.\d+)?E\+\d+$", re.IGNORECASE)
 
 
 def _find_header(rows: list[list[str]]) -> tuple[int, dict[str, int]] | None:
@@ -55,6 +59,7 @@ def parse(path: Path) -> ParsedStatement:
         raise ValueError(f"{path.name}: no Starling header row (Date, Counter Party, Amount) found")
     header_index, columns = found
     statement = ParsedStatement(parser=NAME, account_kind="bank", provider="Starling")
+    excel_warned = False
 
     for line_no, row in enumerate(rows[header_index + 1 :], start=header_index + 2):
         if is_blank_row(row):
@@ -67,6 +72,12 @@ def parse(path: Path) -> ParsedStatement:
                 statement.warnings.append(f"line {line_no}: no amount, skipped")
             continue
         reference = normalise_text(cell(row, columns, "reference"))
+        if _EXCEL_MANGLED.match(reference) and not excel_warned:
+            statement.warnings.append(
+                f"line {line_no}: reference {reference!r} looks rewritten by Excel; "
+                "import the CSV straight from Starling rather than a copy saved in Excel"
+            )
+            excel_warned = True
         statement.transactions.append(
             Transaction(
                 posted_on=parse_date(cell(row, columns, "date")),

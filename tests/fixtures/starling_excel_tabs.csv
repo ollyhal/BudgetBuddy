@@ -1,0 +1,4 @@
+Date	Counter Party	Reference	Type	Amount (GBP)	Balance (GBP)	Spending Category	Notes
+01/10/2026	Example Water	1234567890	DIRECT DEBIT	-60.5	6000.00	BILLS_AND_SERVICES	
+01/10/2026	Example Bank	4E+15	DIRECT DEBIT	-2000	4000	MORTGAGE	
+01/10/2026	Example Vets	AB12345	DIRECT DEBIT	-27	3973	PETS	

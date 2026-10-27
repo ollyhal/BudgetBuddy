@@ -4,7 +4,7 @@ from decimal import Decimal
 import pytest
 from openpyxl import Workbook
 
-from budgetbuddy.models import parse_pence
+from budgetbuddy.models import Transaction, parse_pence
 from budgetbuddy.parsers import detect, parse_file, starling, vanguard
 
 
@@ -81,3 +81,19 @@ def test_unknown_file_rejected(tmp_path):
     path.write_text("a,b,c\n1,2,3\n")
     with pytest.raises(ValueError, match="not recognised"):
         parse_file(path)
+
+
+def test_starling_tab_separated_from_excel(fixtures):
+    path = fixtures / "starling_excel_tabs.csv"
+    assert detect(path) is starling
+    st = parse_file(path)
+    assert [t.amount_pence for t in st.transactions] == [-6050, -200000, -2700]
+    assert [t.source_category for t in st.transactions] == ["BILLS_AND_SERVICES", "MORTGAGE", "PETS"]
+    (warning,) = st.warnings
+    assert "Excel" in warning
+
+
+def test_excel_mangled_reference_still_matches_original(fixtures):
+    (mangled,) = [t for t in parse_file(fixtures / "starling_excel_tabs.csv").transactions if t.reference == "4E+15"]
+    original = Transaction(**{**mangled.__dict__, "reference": "4012345678901234"})
+    assert mangled.fingerprint() == original.fingerprint()
