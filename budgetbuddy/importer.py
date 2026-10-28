@@ -12,6 +12,7 @@ from pathlib import Path
 from budgetbuddy.categorise import categorise_all
 from budgetbuddy.db import get_or_create_account
 from budgetbuddy.parsers import parse_file
+from budgetbuddy.recurring import refresh as refresh_recurring
 from budgetbuddy.transfers import link_transfers
 
 DEFAULT_ACCOUNT_NAMES = {"starling": "Starling Joint"}
@@ -128,4 +129,5 @@ def import_file(
         )
         result.transfers_linked = link_transfers(conn)
     categorise_all(conn)
+    refresh_recurring(conn)
     return result

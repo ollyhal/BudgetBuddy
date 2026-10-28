@@ -94,6 +94,34 @@ python -m budgetbuddy spending --month 2026-10
 You can invent your own categories; anything not in the standard list is
 created the first time you use it.
 
+## Recurring payments
+
+After each import BudgetBuddy looks for income and payments that arrive at a
+steady interval (weekly, fortnightly, four weekly, monthly, quarterly,
+yearly): salaries, direct debits, subscriptions and ISA standing orders.
+These feed the 12 month forecast.
+
+```powershell
+python -m budgetbuddy recurring
+```
+
+lists them grouped as Income, Bills, Subscriptions and Savings & ISAs, with
+the monthly totals, what is left for everyday spending, price rises, and
+anything that has stopped appearing (probably cancelled).
+
+* Payments that vary (energy, water) use the average of the last three.
+* Three payments are needed, or two for a direct debit or standing order.
+* Your changes are kept when detection runs again:
+
+```powershell
+python -m budgetbuddy recurring end 6          # cancelled, leave it out of the forecast
+python -m budgetbuddy recurring ignore 4       # not really a regular payment
+python -m budgetbuddy recurring restore 4
+python -m budgetbuddy recurring amount 3 200   # use your own figure
+python -m budgetbuddy recurring add "Car insurance" 650 --every yearly --next 15/03/2027 --category Insurance
+python -m budgetbuddy recurring add "Bonus" 1500 --income --every yearly --next 31/03/2027
+```
+
 ## Where your data lives
 
 `C:\Users\<you>\BudgetBuddyData` by default (outside this repository):
@@ -110,7 +138,7 @@ committed.
 
 1. ~~Import pipeline~~
 2. ~~Categorisation and ISA values~~
-3. Recurring payments and subscriptions
+3. ~~Recurring payments and subscriptions~~
 4. Dashboard (Streamlit, runs in your browser on your own machine)
 5. Spending review and budgets
 6. 12 month cash forecast with scenarios and lowest balance warning

@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import sqlite3
 import sys
 from pathlib import Path
 
 from budgetbuddy import categorise as cat
+from budgetbuddy import recurring as rec
 from budgetbuddy.db import connect, default_data_dir
 from budgetbuddy.importer import import_file
-from budgetbuddy.models import parse_date
+from budgetbuddy.models import parse_date, parse_pence
 from budgetbuddy.parsers import PARSERS
 from budgetbuddy.valuations import import_values, isa_summaries, record_value
 
@@ -199,6 +201,100 @@ def cmd_spending(args: argparse.Namespace, conn: sqlite3.Connection, data_dir: P
     return 0
 
 
+def _short_date(iso: str | None) -> str:
+    return dt.date.fromisoformat(iso).strftime("%d %b %Y") if iso else ""
+
+
+def cmd_recurring(args: argparse.Namespace, conn: sqlite3.Connection, data_dir: Path) -> int:
+    action = args.action
+    if action == "add":
+        amount = parse_pence(args.amount)
+        if amount is None:
+            raise ValueError("No amount given")
+        if not args.income:
+            amount = -abs(amount)
+        category = cat.canonical_category(args.category) if args.category else None
+        item_id = rec.add_manual(conn, args.name, amount, args.every, parse_date(args.next), category)
+        print(f"Added [{item_id}] {args.name}: {_pounds(amount)} {args.every}, next {args.next}")
+        return 0
+    if action in ("ignore", "end", "restore"):
+        status = {"ignore": "ignored", "end": "ended", "restore": None}[action]
+        rec.set_user_status(conn, args.id, status)
+        print(f"Recurring item {args.id}: {status or 'restored'}")
+        return 0
+    if action == "amount":
+        if args.clear:
+            rec.set_amount(conn, args.id, None)
+            print(f"Recurring item {args.id}: back to the detected amount")
+            return 0
+        amount = parse_pence(args.value)
+        if amount is None:
+            raise ValueError("Give an amount or --clear")
+        current = conn.execute("SELECT amount_pence FROM recurring WHERE id = ?", (args.id,)).fetchone()
+        if current is not None and current["amount_pence"] < 0:
+            amount = -abs(amount)
+        rec.set_amount(conn, args.id, amount)
+        print(f"Recurring item {args.id}: amount set to {_pounds(amount)}")
+        return 0
+
+    rec.refresh(conn)
+    rows = rec.items(conn)
+    if not rows:
+        print("No recurring payments found yet. Import a few months of statements first.")
+        return 0
+    active = [r for r in rows if r["use_status"] == "active"]
+    groups: dict[str, list[sqlite3.Row]] = {}
+    for r in active:
+        groups.setdefault(rec.group_of(r), []).append(r)
+    totals: dict[str, int] = {}
+    for group in ("Income", "Bills & regular payments", "Subscriptions", "Savings & ISAs"):
+        members = groups.get(group, [])
+        if not members:
+            continue
+        per_month = sum(rec.monthly_equivalent(r["use_amount"], r["frequency"]) for r in members)
+        totals[group] = per_month
+        print(f"{group}  ({_pounds(abs(per_month))} a month)")
+        for r in sorted(members, key=lambda r: abs(r["use_amount"]), reverse=True):
+            flags = []
+            if r["variable"]:
+                flags.append("varies, recent average")
+            if r["amount_override_pence"] is not None:
+                flags.append("your amount")
+            if r["source"] == "manual":
+                flags.append("added by you")
+            note = f"  ({', '.join(flags)})" if flags else ""
+            print(
+                f"  [{r['id']:>3}] {r['name']:<28} {_pounds(abs(r['use_amount'])):>11} {r['frequency']:<12}"
+                f" next {_short_date(r['next_due'])}{note}"
+            )
+        print()
+    income = totals.get("Income", 0)
+    out = sum(v for k, v in totals.items() if k != "Income")
+    print(f"Regular income {_pounds(income)} a month, regular outgoings {_pounds(abs(out))} a month,")
+    print(f"leaving {_pounds(income + out)} a month for everyday spending and saving.\n")
+
+    rises = [r for r in active if r["previous_amount_pence"] is not None and r["use_amount"] < 0]
+    if rises:
+        print("Price changes:")
+        for r in rises:
+            change = abs(r["amount_pence"]) - abs(r["previous_amount_pence"])
+            word = "up" if change > 0 else "down"
+            print(
+                f"  [{r['id']:>3}] {r['name']}: {word} from {_pounds(abs(r['previous_amount_pence']))}"
+                f" to {_pounds(abs(r['amount_pence']))} ({_pounds(abs(change))} a payment)"
+            )
+        print()
+    lapsed = [r for r in rows if r["use_status"] == "lapsed"]
+    if lapsed:
+        print("Stopped appearing (cancelled? left out of the forecast):")
+        for r in lapsed:
+            print(f"  [{r['id']:>3}] {r['name']}: {_pounds(abs(r['use_amount']))} {r['frequency']}, last seen {_short_date(r['last_seen'])}")
+        print()
+    print("Change things with: recurring ignore|end|restore <id>, recurring amount <id> <amount>,")
+    print('or add what history cannot show: recurring add "Car insurance" 650 --every yearly --next 15/03/2027')
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="budgetbuddy", description="Local joint finance dashboard")
     parser.add_argument("--data-dir", type=Path, default=None, help="where the database lives")
@@ -241,6 +337,27 @@ def build_parser() -> argparse.ArgumentParser:
     p_txn.add_argument("--category")
     p_txn.add_argument("--search", help="text in merchant, payee or reference")
     p_txn.set_defaults(func=cmd_transactions)
+
+    p_rec = sub.add_parser("recurring", help="regular income, bills, subscriptions and ISA payments")
+    rec_sub = p_rec.add_subparsers(dest="action")
+    r_add = rec_sub.add_parser("add", help="add a regular payment history cannot show (e.g. yearly insurance)")
+    r_add.add_argument("name")
+    r_add.add_argument("amount")
+    r_add.add_argument("--every", required=True, choices=list(rec.FREQUENCIES))
+    r_add.add_argument("--next", required=True, help="next due date, dd/mm/yyyy")
+    r_add.add_argument("--category")
+    r_add.add_argument("--income", action="store_true", help="money coming in rather than going out")
+    for name, text in (
+        ("ignore", "not really recurring; leave it out"),
+        ("end", "cancelled; leave it out of the forecast"),
+        ("restore", "undo ignore or end"),
+    ):
+        rec_sub.add_parser(name, help=text).add_argument("id", type=int)
+    r_amount = rec_sub.add_parser("amount", help="use your own amount instead of the detected one")
+    r_amount.add_argument("id", type=int)
+    r_amount.add_argument("value", nargs="?")
+    r_amount.add_argument("--clear", action="store_true")
+    p_rec.set_defaults(func=cmd_recurring)
 
     p_spend = sub.add_parser("spending", help="spending by category")
     p_spend.add_argument("--month", help="YYYY-MM")

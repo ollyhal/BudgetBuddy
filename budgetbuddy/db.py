@@ -6,7 +6,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS accounts (
@@ -86,6 +86,26 @@ CREATE TABLE IF NOT EXISTS valuations (
     valued_on   TEXT NOT NULL,
     value_pence INTEGER NOT NULL,
     UNIQUE (account_id, valued_on)
+);
+
+-- Regular payments and income, detected from history or added by hand.
+-- user_status and amount_override_pence are yours and survive re-detection.
+CREATE TABLE IF NOT EXISTS recurring (
+    id                    INTEGER PRIMARY KEY,
+    key                   TEXT UNIQUE,
+    source                TEXT NOT NULL CHECK (source IN ('detected', 'manual')),
+    name                  TEXT NOT NULL,
+    category              TEXT,
+    frequency             TEXT NOT NULL,
+    amount_pence          INTEGER NOT NULL,
+    previous_amount_pence INTEGER,
+    variable              INTEGER NOT NULL DEFAULT 0,
+    occurrences           INTEGER NOT NULL DEFAULT 0,
+    last_seen             TEXT,
+    next_due              TEXT,
+    status                TEXT NOT NULL DEFAULT 'active',
+    user_status           TEXT CHECK (user_status IN ('ignored', 'ended')),
+    amount_override_pence INTEGER
 );
 """
 
