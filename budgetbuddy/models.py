@@ -96,7 +96,10 @@ class Transaction:
 
 @dataclass
 class InvestmentTrade:
-    """A fund purchase or sale inside a Vanguard ISA."""
+    """A fund purchase or sale inside a Vanguard ISA.
+
+    cost_pence is positive for buys and negative for sells.
+    """
 
     traded_on: dt.date
     fund: str

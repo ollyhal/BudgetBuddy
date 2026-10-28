@@ -152,11 +152,14 @@ def parse(path: Path) -> ParsedStatement:
             if cost is None:
                 statement.warnings.append(f"row {line_no}: trade with no cost, skipped")
                 continue
+            details = normalise_text(cell(row, columns, "details"))
+            # Store sells as negative so summing cost gives net money put into funds
+            cost = -abs(cost) if classify(details) == "sell" else abs(cost)
             statement.trades.append(
                 InvestmentTrade(
                     traded_on=date,
                     fund=normalise_text(cell(row, columns, "fund")),
-                    details=normalise_text(cell(row, columns, "details")),
+                    details=details,
                     quantity=Decimal(str(cell(row, columns, "quantity") or 0).replace(",", "")),
                     price=Decimal(str(cell(row, columns, "price") or 0).replace(",", "").replace("£", "")),
                     cost_pence=cost,

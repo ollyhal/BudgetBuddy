@@ -54,6 +54,46 @@ What the import does:
   you invest is never counted as spending. Payments to Vanguard are flagged
   even before the ISA file is imported.
 
+## ISA values
+
+The orders list shows what you bought, not what it is worth. Once a month,
+copy each ISA's value from the Vanguard summary page:
+
+```powershell
+python -m budgetbuddy value "Vanguard ISA A" 12450.00
+python -m budgetbuddy value "Vanguard ISA B" 9800.00 --date 31/10/2026
+```
+
+Or keep a file with `Date,Account,Value` columns and run
+`python -m budgetbuddy value --file values.csv`. `status` then shows each
+ISA's value, net invested (buys less sells) and growth.
+
+## Categories
+
+Every Starling transaction gets a clean merchant name and a category when it
+is imported, chosen in this order:
+
+1. **Transfers** to your ISAs (never counted as spending)
+2. A category you set on one transaction with `recategorise`
+3. **Your rules**, which always beat the built in ones
+4. Built in keywords (Tesco is Groceries, Netflix is Subscriptions, ...)
+5. Starling's own Spending Category
+6. Otherwise money in is Income and money out is Uncategorised
+
+```powershell
+python -m budgetbuddy uncategorised                         # what needs a category, biggest first
+python -m budgetbuddy rule "Premier Vet Alliance" Pets      # this merchant, now and in future
+python -m budgetbuddy rule --contains "uber" Transport      # any payee or reference containing it
+python -m budgetbuddy rule                                  # list your rules
+python -m budgetbuddy rule --delete 3
+python -m budgetbuddy transactions --month 2026-10 --search amazon
+python -m budgetbuddy recategorise 42 Holidays              # just this one transaction
+python -m budgetbuddy spending --month 2026-10
+```
+
+You can invent your own categories; anything not in the standard list is
+created the first time you use it.
+
 ## Where your data lives
 
 `C:\Users\<you>\BudgetBuddyData` by default (outside this repository):
@@ -68,8 +108,8 @@ committed.
 
 ## Roadmap
 
-1. ~~Import pipeline~~ (this stage)
-2. Categorisation: merchant clean up, rules that learn from your corrections
+1. ~~Import pipeline~~
+2. ~~Categorisation and ISA values~~
 3. Recurring payments and subscriptions
 4. Dashboard (Streamlit, runs in your browser on your own machine)
 5. Spending review and budgets

@@ -9,6 +9,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from budgetbuddy.categorise import categorise_all
 from budgetbuddy.db import get_or_create_account
 from budgetbuddy.parsers import parse_file
 from budgetbuddy.transfers import link_transfers
@@ -126,4 +127,5 @@ def import_file(
             ],
         )
         result.transfers_linked = link_transfers(conn)
+    categorise_all(conn)
     return result
