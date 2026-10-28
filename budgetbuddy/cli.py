@@ -295,6 +295,23 @@ def cmd_recurring(args: argparse.Namespace, conn: sqlite3.Connection, data_dir: 
     return 0
 
 
+def cmd_dashboard(args: argparse.Namespace, conn: sqlite3.Connection, data_dir: Path) -> int:
+    import subprocess
+
+    app = Path(__file__).parent / "dashboard" / "app.py"
+    command = [
+        sys.executable, "-m", "streamlit", "run", str(app),
+        "--server.address", "localhost", "--browser.gatherUsageStats", "false",
+        "--client.toolbarMode", "viewer",
+        "--", "--data-dir", str(data_dir),
+    ]
+    print("Opening the dashboard in your browser (Ctrl+C here to stop it)...")
+    try:
+        return subprocess.call(command)
+    except KeyboardInterrupt:
+        return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="budgetbuddy", description="Local joint finance dashboard")
     parser.add_argument("--data-dir", type=Path, default=None, help="where the database lives")
@@ -358,6 +375,9 @@ def build_parser() -> argparse.ArgumentParser:
     r_amount.add_argument("value", nargs="?")
     r_amount.add_argument("--clear", action="store_true")
     p_rec.set_defaults(func=cmd_recurring)
+
+    p_dash = sub.add_parser("dashboard", help="open the dashboard in your browser (local only)")
+    p_dash.set_defaults(func=cmd_dashboard)
 
     p_spend = sub.add_parser("spending", help="spending by category")
     p_spend.add_argument("--month", help="YYYY-MM")

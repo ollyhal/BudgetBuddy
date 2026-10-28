@@ -7,7 +7,7 @@ name = "budgetbuddy"
 version = "1.0.0a1"
 description = "Local, private joint finance dashboard: bank and Vanguard ISA imports, spending and forecasts."
 requires-python = ">=3.11"
-dependencies = ["openpyxl>=3.1"]
+dependencies = ["openpyxl>=3.1", "pandas>=2.2", "plotly>=5.24", "streamlit>=1.45"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
@@ -20,3 +20,4 @@ include = ["budgetbuddy*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["tests"]

@@ -122,6 +122,23 @@ python -m budgetbuddy recurring add "Car insurance" 650 --every yearly --next 15
 python -m budgetbuddy recurring add "Bonus" 1500 --income --every yearly --next 31/03/2027
 ```
 
+## Dashboard
+
+```powershell
+python -m budgetbuddy dashboard
+```
+
+opens the dashboard in your browser at a `localhost` address. It runs only on
+your computer; close it with Ctrl+C in PowerShell. Tabs:
+
+* **Overview**: joint balance, ISA total, this month's spending against the
+  3 month average, regular income, and money in, spent and saved each month
+* **Spending**: categories over time, the chosen month by category, biggest merchants
+* **Regular payments**: everything `recurring` found, price changes, cancelled items
+* **ISAs**: value, net invested and growth for each ISA
+* **Needs a category**: the review queue
+* **Forecast**: coming next
+
 ## Where your data lives
 
 `C:\Users\<you>\BudgetBuddyData` by default (outside this repository):
@@ -139,7 +156,7 @@ committed.
 1. ~~Import pipeline~~
 2. ~~Categorisation and ISA values~~
 3. ~~Recurring payments and subscriptions~~
-4. Dashboard (Streamlit, runs in your browser on your own machine)
+4. ~~Dashboard (Streamlit, runs in your browser on your own machine)~~
 5. Spending review and budgets
 6. 12 month cash forecast with scenarios and lowest balance warning
 7. ISA tracking: contributions against the £20,000 allowance per person per tax year
