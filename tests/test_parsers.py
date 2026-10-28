@@ -5,7 +5,7 @@ import pytest
 from openpyxl import Workbook
 
 from budgetbuddy.models import Transaction, parse_pence
-from budgetbuddy.parsers import detect, parse_file, starling, vanguard
+from budgetbuddy.parsers import detect, parse_file, starling, vanguard, vanguard_orders
 
 
 @pytest.mark.parametrize(
@@ -97,3 +97,20 @@ def test_excel_mangled_reference_still_matches_original(fixtures):
     (mangled,) = [t for t in parse_file(fixtures / "starling_excel_tabs.csv").transactions if t.reference == "4E+15"]
     original = Transaction(**{**mangled.__dict__, "reference": "4012345678901234"})
     assert mangled.fingerprint() == original.fingerprint()
+
+
+def test_vanguard_orders_pasted_from_website(fixtures):
+    path = fixtures / "vanguard_orders_pasted.txt"
+    assert detect(path) is vanguard_orders
+    st = parse_file(path)
+    assert st.account_kind == "isa" and not st.transactions
+    sell, buy = st.trades
+    assert sell.traded_on == dt.date(2026, 10, 23)
+    assert sell.fund == "LifeStrategy® 80% Equity Fund - Accumulation"
+    assert (sell.quantity, sell.cost_pence, sell.details) == (Decimal("-0.0526"), -2024, "Single Sell")
+    assert (buy.quantity, buy.cost_pence, buy.price) == (Decimal("1.0144"), 30000, Decimal("295.7413"))
+    assert st.warnings == ["1 pending order(s) skipped; import again once they complete"]
+
+
+def test_unicode_minus_sign():
+    assert parse_pence("−£20.24") == -2024

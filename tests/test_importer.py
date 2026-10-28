@@ -62,3 +62,14 @@ def test_cli_import_folder_and_status(tmp_path, fixtures, capsys):
     assert main(["--data-dir", str(data), "status"]) == 0
     out = capsys.readouterr().out
     assert "Starling Joint" in out and "8 cash transactions" in out and "£4,118.38" in out
+
+
+def test_vanguard_orders_reimport_after_pending_completes(conn, data_dir, fixtures, tmp_path):
+    src = fixtures / "vanguard_orders_pasted.txt"
+    first = import_file(conn, src, data_dir, account="Vanguard ISA A", owner="A")
+    assert first.rows_added == 2
+    # A later paste where the pending order has completed: only that one is new
+    later = tmp_path / "later.txt"
+    later.write_text(src.read_text(encoding="utf-8").replace("Pending", "Completed"), encoding="utf-8")
+    second = import_file(conn, later, data_dir, account="Vanguard ISA A", owner="A")
+    assert (second.rows_added, second.duplicates) == (1, 2)

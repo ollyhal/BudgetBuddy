@@ -1,0 +1,4 @@
+Investment	Date	Order type	Order status	My units	Buy/Sell	Account	Value
+Click for more details	FTSE Global All Cap Index Fund Accumulation	30 October 2026more information	Regular	Pending	1.0084	Buy	ISA	£300.00
+Click for more details	LifeStrategy® 80% Equity Fund - Accumulation	23 October 2026	Single	Completed	-0.0526	Sell	ISA	−£20.24
+Click for more details	FTSE Global All Cap Index Fund Accumulation	02 October 2026	Regular	Completed	1.0144	Buy	ISA	£300.00

@@ -22,6 +22,8 @@ def parse_pence(value: object) -> int | None:
         amount = Decimal(str(value))
     else:
         text = str(value).strip().replace("£", "").replace(",", "").replace("GBP", "").strip()
+        # Websites often use a real minus sign or en dash instead of a hyphen
+        text = text.replace("\u2212", "-").replace("\u2013", "-")
         if not text:
             return None
         negative = text.startswith("(") and text.endswith(")")

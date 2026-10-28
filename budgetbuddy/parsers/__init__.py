@@ -6,9 +6,9 @@ from pathlib import Path
 from types import ModuleType
 
 from budgetbuddy.models import ParsedStatement
-from budgetbuddy.parsers import starling, vanguard
+from budgetbuddy.parsers import starling, vanguard, vanguard_orders
 
-PARSERS: dict[str, ModuleType] = {m.NAME: m for m in (starling, vanguard)}
+PARSERS: dict[str, ModuleType] = {m.NAME: m for m in (starling, vanguard_orders, vanguard)}
 
 
 def detect(path: Path) -> ModuleType:

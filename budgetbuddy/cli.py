@@ -11,7 +11,7 @@ from budgetbuddy.db import connect, default_data_dir
 from budgetbuddy.importer import import_file
 from budgetbuddy.parsers import PARSERS
 
-STATEMENT_SUFFIXES = {".csv", ".xlsx", ".xlsm"}
+STATEMENT_SUFFIXES = {".csv", ".txt", ".xlsx", ".xlsm"}
 
 
 def _pounds(pence: int | None) -> str:

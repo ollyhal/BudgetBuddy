@@ -26,21 +26,26 @@ pip install -e ".[dev]"
 **Starling (joint account):** in the app, Account > Statements > Export, choose
 CSV and a date range.
 
-**Vanguard (one per ISA):** on the website, My Account > Transactions >
-Download, which gives an `.xlsx` spreadsheet.
+**Vanguard (one per ISA):** log in on a laptop and open the orders list.
+Select the whole table (from the "Investment" heading to the last row), copy
+it, paste it into Notepad and save it as a `.txt` file, one per ISA. Only
+completed orders are imported; pending ones are picked up next time you
+paste. If Vanguard ever offers a spreadsheet download, that works too.
 
 ```powershell
 python -m budgetbuddy import "$HOME\Downloads\StarlingStatement_2026-09.csv"
-python -m budgetbuddy import "$HOME\Downloads\Vanguard_A.xlsx" --account "Vanguard ISA A" --owner A
-python -m budgetbuddy import "$HOME\Downloads\Vanguard_B.xlsx" --account "Vanguard ISA B" --owner B
+python -m budgetbuddy import "$HOME\Documents\vanguard_a_orders.txt" --account "Vanguard ISA A" --owner A
+python -m budgetbuddy import "$HOME\Documents\vanguard_b_orders.txt" --account "Vanguard ISA B" --owner B
 python -m budgetbuddy status
 ```
 
-You can also pass a folder, and every `.csv`/`.xlsx` inside is imported.
+Pasting the full list each time is fine: orders already stored are skipped.
+
+You can also pass a folder, and every `.csv`/`.txt`/`.xlsx` inside is imported.
 
 What the import does:
 
-* **Detects the format** from the headers (use `--format starling|vanguard` to force it).
+* **Detects the format** from the headers (use `--format` to force one).
 * **Archives the original file** in the data folder so the database can always be rebuilt.
 * **Skips files already imported**, and in overlapping downloads skips the
   transactions already stored while keeping genuine repeats (two coffees on the same day).
